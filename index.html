@@ -17,6 +17,30 @@
     input[type=number] {
     -moz-appearance: textfield;
     }
+    input[type="number"], input[type=text] {
+  appearance: none;
+  -moz-appearance: textfield;
+  border-color:#e5e5e5;
+  border-style: solid;
+  padding: 8px;
+  font-size: 16px;
+  text-align: center;
+  width: auto;
+  background-color: transparent;
+}
+
+input[type="number"]:focus {
+  outline: none;
+}
+    button[type="button"] {
+    background-color: #e5e5e5;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    padding: 1em;
+    margin: auto;
+    display: block;
+    }
     html {
         font-family: Verdana, Geneva, Tahoma, sans-serif;
     }
@@ -73,9 +97,9 @@
         <h1>Programa de generalización de un problema de probabilidad</h1>
         <h3>Desarrollado en Lenguaje de etiquetas de hipertexto (Html), JavaScript (Js) y Hojas de Estilo en Cascada
             (CSS).</h3>
-        <p>Subtema a tratar: Un modelo probabilístico para un experimento, el caso discreto.</p>
+        <p>Subtema a tratar: Ley de probabilidad total y regla de Bayes.</p>
         <h2>Referencia</h2>
-        <p>Adaptado de: Ejercicio 15, Sección 2 Orden propuesto en Wackerly&Mendenhall&Scheaffer (2022, p15. #2).</p>
+        <p>Adaptado de: ??? PREGUNTAR AL PROFE.</p>
         <h2>Enunciado</h2>
         <p>En una fábrica de pernos, las máquinas <b>A, B</b> y <b>C</b> fabrican <b>F1, F2</b> y <b>F3</b> (donde Fi
             son porcentajes) de la producción total, respectivamente. De lo que producen, <b>P1, P2</b> y <b>P3</b>
@@ -88,41 +112,46 @@
                     generalizado)</tr>
                 <tr>
                     <th>Máquina</th>
-                    <th>Porcentaje de producción</th>
-                    <th>Porcentaje de pernos defectuosos</th>
+                    <th>Porcentaje de producción P(Máquina)</th>
+                    <th>Porcentaje de pernos defectuosos P(Defectuoso|Máquina)</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>A</td>
                     <td><input title="Producción maquina 1" type="number" id="txt_P1" placeholder="F1: 0.00" name="txt_produccion"
-                            onchange="inicializar(this);" value=0.25></td>
+                        oninput="inicializar(this);"></td>
                     <td><input title="Defecto maquina 1" type="number" id="txt_D1" placeholder="P1: 0.00" name="txt_defectuosos"
-                            onchange="inicializar(this);" value=0.05></td>
+                            oninput="inicializar(this);"></td>
                 </tr>
                 <tr>
                     <td>B</td>
                     <td><input title="Producción maquina 2" type="number" id="txt_P2" placeholder="F2: 0.00" name="txt_produccion"
-                            onchange="inicializar(this);" value=0.35></td>
+                        oninput="inicializar(this);"></td>
                     <td><input title="Defecto maquina 2" type="number" id="txt_D2" placeholder="P2: 0.00" name="txt_defectuosos"
-                            onchange="inicializar(this);" value=0.04></td>
+                        oninput="inicializar(this);"></td>
                 </tr>
                 <tr>
                     <td>C</td>
                     <td><input title="Producción maquina 3" type="number" id="txt_P3" placeholder="F3: 0.00" name="txt_produccion"
-                            onchange="inicializar(this);" value=0.4></td>
+                        oninput="inicializar(this);"></td>
                     <td><input title="Defecto maquina 3" type="number" id="txt_D3" placeholder="P3: 0.00" name="txt_defectuosos"
-                            onchange="inicializar(this);" value=0.02></td>
+                        oninput="inicializar(this);"></td>
                 </tr>
             </tbody>
         </table>
-        <input title="Sin defectos" type="text" readonly id="txtD4" name="txt_defectuosos" value="A la espera de valores válidos..."><span> Porcentaje pernos no defectuosos (Complemento de pernos defectuosos).</span>
+        <input title="Sin defectos" type="text" readonly id="txtD4" name="txt_defectuosos" placeholder="A la espera de valores válidos..."><span> Porcentaje pernos no defectuosos (Complemento de pernos defectuosos).</span>
+        <br><button type="button" onclick="limpiar();">Limpiar valores</button>
         <p><i>Nota.</i> Esta tabla contiene los valores a ingresar, para generar la solución al problema planteado, para
             poder generar resultados debe de estar totalmente llena.</p>
         <p id="err"></p>
         <p>
             Encuentre las probabilidades respectivas de que el perno provenga de la máquina <b>A, B</b> y <b>C</b>.
         </p>
+        <div id="graficaEventos"></div>
+        <p id="txt_cred1"></p>
+        <div id="graficaDefectos"></div>
+        <p id="txt_cred3"></p>
         <h2>Teoría aplicada</h2>
         <p>Para el desarrollo de este ejercicio se utilizara el teorema 2.9 de Wackerly&Mendenhall&Scheaffer [1]:</p>
         <p><b>TEOREMA 2.9 Regla de Bayes:</b>[1] “Suponga que {B1, B2, . . . , Bk} es una partición de S (vea la
@@ -192,7 +221,9 @@
         <p>Para comenzar debemos de conocer la probilidad total de que el perno salga defectuoso, sin importar de que
             máquina sea:
         </p>
-        <p id="txt_PD">P(D)= A la espera de valores válidos...</p>
+        <b><p style="text-align: center;" id="txt_PD">P(D)= A la espera de valores válidos...</p></b>
+        <div id="graficaDefectosTotal"></div>
+        <p id="txt_cred4"></p>
         <h3>Paso 2.</h3>
         <p>Ahora debemos conocer la probabilidad de que el perno provenga de alguna máquina debido a que salio
             defectuoso.</p>
@@ -271,22 +302,17 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>A la espera de valores válidos...</td>
-                    <td>A la espera de valores válidos...</td>
-                    <td>A la espera de valores válidos...</td>
+                    <td><input type="text" id="probA" title="Ser de la máquina A dado que es defectuoso" name="tdBayes" readonly  placeholder="A la espera de valores válidos..."></td>
+                    <td><input type="text" id="probB" title="Ser de la máquina B dado que es defectuoso" name="tdBayes" readonly placeholder="A la espera de valores válidos..."></td>
+                    <td><input type="text" id="probC" title="Ser de la máquina C dado que es defectuoso" name="tdBayes" readonly  placeholder="A la espera de valores válidos..."></td>
                 </tr>
             </tbody>
         </table>
         <p><i>Nota.</i> Esta tabla contiene los valores resultantes del problema planteado.</p>
-        <div id="graficaEventos"></div>
-        <p id="txt_cred1"></p>
-        <div id="graficaDefectos"></div>
-        <p id="txt_cred3"></p>
         <h2>Resultado</h2>
-        <p id="txtResA">A la espera de valores válidos...</p>
-        <p id="txtResB"></p>
-        <div id="graficaTotal"></div>
-        <p id="txt_cred2"></p>
+        <p id="txtResB">A la espera de valores válidos...</p>
+        <div id="graficaBayes"></div>
+        <p id="txt_cred5"></p>
         <h2>Referencias</h2>
         <p>[1] Wackerly&Mendenhall&Scheaffer. (2010). Estadística Matemática (Séptima ed.). Mexico D.F.: Cengage
             Learning.
@@ -294,15 +320,16 @@
     </div>
 </body>
 <footer>
-    <h3>Basado en el trabajo original de:</h3>
-    <p>Gonzalo Alejandro Malagon Quiroga 20201020002</p>
-    <p>Correo institucional: gamalagonq@correo.udistrital.edu.co</p>
+    <h3>Basado en el ejercicio original de:</h3>
+    <p>Fernando Leon Parada</p>
+    <p>Correo institucional: fleon@udistrital.edu.co</p>
     <h3>Applet por:</h3>
     <p>Omar Armando Neira Ordoñez 20192020110</p>
     <p>Correo institucional: oaneirao@udistrital.edu.co</p>
 </footer>
 <script type="text/javascript">
     function inicializar(inputProb) {
+        document.getElementById(inputProb.getAttribute("id")).setAttribute("value",inputProb.value);
         //Verificamos si hay valores negativos
         var inputs = document.getElementsByName(inputProb.getAttribute("name"));
         for (var i = 0; i < inputs.length; i++) {
@@ -328,7 +355,7 @@
         console.log(elementoP);
         //Hacemos la suma de los campos dados
         for (var i = 0; i < elementoP.length; i++) {
-            console.log(elementoP[i].value + "sumando");
+            console.log(Number(elementoP[i].value) + "sumando");
             var id = elementoP[i].getAttribute("id");
             var valor = Number(elementoP[i].value);
             total = total + valor;
@@ -372,6 +399,15 @@
                 }
                 return false;
             }
+            if (total == 0 && txtName == "txt_defectuosos") {
+                document.getElementById("err").innerHTML = "Los porcentajes de pernos defectuosos no pueden ser " + total+" de lo contrario el ejercicio no tendria sentido, ya que nunca habrian defectos";
+                //Resaltamos tabla en rojo para denotar error
+                for (var i = 0; i < txtProb.length; i++) {
+                    var cajonError = txtProb[i];
+                    cajonError.style.borderColor = "red";
+                }
+                return false;
+            }
         }
         //Caso en el que no pasan de 1 (Caso correcto)
         //Creamos variables
@@ -406,6 +442,7 @@
                 arrGraf[i] = 0;
             }
         }
+        console.log(arrGraf);
         return arrGraf;
     }
     function titleArr(name){
@@ -423,24 +460,84 @@
         }
         return arrGraf;
     }
+    function probDef(name){
+        var recogida = document.getElementsByName(name);
+        var arrProd = document.getElementsByName("txt_produccion");
+        var txt= document.getElementById("txt_PD");
+        var arrGraf = new Array();
+        var suma=0;
+        var texto="";
+        console.log(recogida);
+        for (var i = 0; i < recogida.length-1; i++) {
+            if(i<recogida.length-2){
+                suma=suma+Number(recogida[i].value)*Number(arrProd[i].value);
+                console.log(recogida[i].value);
+                arrGraf[i]=recogida[i].value+"*"+arrProd[i].value+"+";
+            }
+            else{
+                suma=suma+Number(recogida[i].value)*Number(arrProd[i].value);
+                arrGraf[i]=recogida[i].value+"*"+arrProd[i].value;
+            }
+        }
+        arrGraf[arrGraf.length]=" = ";
+        arrGraf[arrGraf.length]=suma;
+        for (var i = 0; i < arrGraf.length; i++) {
+            texto=texto+arrGraf[i];
+        }
+        console.log(texto);
+        console.log(arrGraf);
+        txt.innerHTML= texto;
+        return suma;
+    }
+    function bayes(defecto){
+        var tbBayes = document.getElementsByName("tdBayes");
+        var arrDef = document.getElementsByName("txt_defectuosos");
+        var arrProd = document.getElementsByName("txt_produccion");
+        var sumando=0;
+        for(var i=0;i<tbBayes.length;i++){
+            var valor= (Number(arrDef[i].value)*Number(arrProd[i].value))/defecto;
+            tbBayes[i].innerHTML=valor;
+            tbBayes[i].setAttribute("value",valor);
+            
+
+            if(i==tbBayes.length-1){
+                tbBayes[i].innerHTML=1-sumando;
+            }
+            sumando=sumando+(Number(arrDef[i].value)*Number(arrProd[i].value))/defecto;
+        }
+        console.log("a "+sumando)
+    }
     function verProb(inputProb) {
         //Creamos variables
-        
+        document.getElementById("txtD4").value = 0;
         var totalProd = sumProb("txt_produccion"); 
         if (!verificarProb("txt_produccion", totalProd)) { return false; }
         var totalDef = sumProb("txt_defectuosos");
         if (!verificarProb("txt_defectuosos", totalDef)) { return false; }
         //console.log(txtProb.length);
-        document.getElementById("txtD4").setAttribute("value",Number(1)-(Number(document.getElementById("txt_D1").value)+Number(document.getElementById("txt_D2").value)+Number(document.getElementById("txt_D3").value)));
         //Ponemos el complemento de los defectuosos
-
+        document.getElementById("txtD4").value = Number(1)-(Number(document.getElementById("txt_D1").value)+Number(document.getElementById("txt_D2").value)+Number(document.getElementById("txt_D3").value));
+        //Calculamos la probabilidad de que sean defectuosos
+        var defecto = probDef("txt_defectuosos");
+        //Creamos una grafica para los defectos
+        crearGrafica([defecto,1-defecto],["Defecto","No defecto"],"Porcentajes total de defectos","graficaDefectosTotal");
+        //Damos respectivos creditos
+        document.getElementById("txt_cred4").innerHTML = 'Nota. El gráfico contiene la información de la solución del Paso 1. Generado por Google Charts, por Google Inc; 2023 (<a href="https://developers.google.com/chart/interactive/docs/gallery/piechart" target="_blank">Google developers</a>). En el dominio público.';
+        //Llenamos la tabla de Bayes
+        bayes(defecto);
+        //Creamos grafica Bayes
+        document.getElementById("txt_cred5").innerHTML = 'Nota. El gráfico contiene la información de la tabla de resultados (Tabla 3). Generado por Google Charts, por Google Inc; 2023 (<a href="https://developers.google.com/chart/interactive/docs/gallery/piechart" target="_blank">Google developers</a>). En el dominio público.';
+        crearGrafica(nameValArr("tdBayes"),titleArr("tdBayes"),"Porcentajes de defectos dado de que es de x Máquina","graficaBayes");
+        
+        //Creamos graficos
         crearGrafica(nameValArr("txt_produccion"),titleArr("txt_produccion"),"Porcentajes de producción de cada máquina","graficaEventos");
         //Damos respectivos creditos
         document.getElementById("txt_cred1").innerHTML = 'Nota. El gráfico contiene la información de la tabla de información (Tabla 1). Generado por Google Charts, por Google Inc; 2023 (<a href="https://developers.google.com/chart/interactive/docs/gallery/piechart" target="_blank">Google developers</a>). En el dominio público.';
         crearGrafica(nameValArr("txt_defectuosos"),titleArr("txt_defectuosos"),"Porcentajes de defectos de cada máquina","graficaDefectos");
         //Damos respectivos creditos
         document.getElementById("txt_cred3").innerHTML = 'Nota. El gráfico contiene la información de la tabla de información (Tabla 1). Generado por Google Charts, por Google Inc; 2023 (<a href="https://developers.google.com/chart/interactive/docs/gallery/piechart" target="_blank">Google developers</a>). En el dominio público.';
-
+        //Ponemos resultados
+        document.getElementById("txtResB").innerHTML = "Como resultado del ejercicio tenemos el siguiente grafico que presenta los valores obtenidos: ";
 
 
         //Texto que muestra la suma
@@ -448,7 +545,6 @@
         //Creamos las graficas
         //Grafica probabilidad de eventos
         //crearGrafica();
-        crearGraficaTotal();
         //Ponemos los textos de la tabla del paso 1 y del desarrollo del punto b
         /*var txt_paso1 = document.getElementsByName("txt_paso1");
         txt_paso1[0].innerHTML = txt_suma;
@@ -476,22 +572,6 @@
         //Enviamos los resultados a la funcion de graficos, con su titulo y un div (id) donde estara
         crearGraficoEventos(arrGraf, titulo, idDiv)
     }
-    function crearGraficaTotal() {
-        //Creamos variables
-        var resArr = document.getElementsByName("txtRes_E"); //Llamamos la tabla con los resultados
-        var total = 0;
-        //Iteramos sobre la tabla para crear un arreglo con los resultados
-        for (var i = 0; i < resArr.length - 1; i++) {
-            total = Number(resArr[i].innerText) + total;
-        }
-        var arrGraf = [['Evento', 'Probabilidad'], ['Encontrar', 0.30], ['No encontrar', 0.70]];
-        //Ponemos los resultados en texto del punto b
-        document.getElementById("txtResB").innerHTML = "Como resultado del punto 'b' nos da que la probabilidad de que se encuentre petróleo o gas en al menos una de las 2 perforaciones es de: " + total;
-        //Damos respectivos creditos
-        document.getElementById("txt_cred2").innerHTML = 'Nota. El gráfico contiene la información de los resultados probabilísticos finales. Generado por Google Charts, por Google Inc; 2023 (<a href="https://developers.google.com/chart/interactive/docs/gallery/piechart" target="_blank">Google developers</a>). En el dominio público.';
-        //Enviamos los resultados a la funcion de graficos, con su titulo y un div (id) donde estara
-        crearGraficoEventos(arrGraf, "Probabilidad de encontrar petroleo o gas", "graficaTotal")
-    }
     function crearGraficoEventos(arreglo, titulo, idDiv) {
         // Load google charts
         google.charts.load('current', { 'packages': ['corechart'] });
@@ -513,6 +593,19 @@
             // Display the chart inside the <div> element with id="piechart"
             var chart = new google.visualization.PieChart(document.getElementById(idDiv));
             chart.draw(data, options);
+        }
+    }
+    function limpiar(){
+        var prod = document.getElementsByName("txt_produccion");
+        var def = document.getElementsByName("txt_defectuosos");
+        for(var i=0;i<prod.length;i++){
+            prod[i].setAttribute("value","");
+            prod[i].value = "";
+        }
+        for(var i=0;i<def.length;i++){
+            def[i].setAttribute("value","");
+            def[i].value="";
+            
         }
     }
 </script>
